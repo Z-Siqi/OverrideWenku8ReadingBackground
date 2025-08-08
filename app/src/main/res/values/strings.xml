@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">OverrideWenku8ReadingBackground</string>
+    <string name="module_description">Override org.mewx.wenku8 default reading background to white for a better reading experience.</string>
+</resources>

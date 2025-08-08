@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">覆盖轻小说文库阅读背景</string>
+    <string name="module_description">覆盖 org.mewx.wenku8 默认阅读背景为白色，以获得更好的阅读体验</string>
+</resources>
