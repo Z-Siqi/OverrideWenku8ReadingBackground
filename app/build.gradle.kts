@@ -10,21 +10,25 @@ android {
         applicationId = "sqz.wenku8.bg"
         minSdk = 27
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 11
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        android.buildFeatures.buildConfig = true
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            isShrinkResources = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
 
         debug {
             isMinifyEnabled = false
             isShrinkResources = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            buildConfigField("boolean", "DEBUG", "true")
         }
     }
     compileOptions {
