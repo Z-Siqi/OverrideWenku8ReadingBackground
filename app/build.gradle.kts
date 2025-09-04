@@ -4,14 +4,14 @@ plugins {
 
 android {
     namespace = "sqz.wenku8.bg"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "sqz.wenku8.bg"
         minSdk = 27
         targetSdk = 36
-        versionCode = 11
-        versionName = "1.1"
+        versionCode = 12
+        versionName = "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         android.buildFeatures.buildConfig = true

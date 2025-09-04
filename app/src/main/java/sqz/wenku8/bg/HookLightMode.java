@@ -12,8 +12,6 @@ import android.os.Build;
 import android.os.PowerManager;
 import android.view.View;
 
-import androidx.core.content.ContextCompat;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -29,7 +27,6 @@ public class HookLightMode {
     // ===== runtime state =====
     private static AtomicBoolean inPowerSave;
     private static AtomicBoolean inDarkMode;
-    private static final AtomicBoolean reverseDarkMode = new AtomicBoolean(false);
     private static final ThreadLocal<Boolean> isProgrammatic = ThreadLocal.withInitial(() -> false);
 
     private static final AtomicBoolean isModeChanged = new AtomicBoolean(false);
@@ -46,18 +43,18 @@ public class HookLightMode {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
                     sLastResumed = (Activity) param.thisObject;
-                    reverseDarkMode.set(true);
+                    MainHook.log(true, "hookTopActivity: onResume");
                 }
             });
             XposedHelpers.findAndHookMethod(Activity.class, "onPause", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
                     if (sLastResumed == param.thisObject) sLastResumed = null;
-                    reverseDarkMode.set(false);
+                    MainHook.log(true, "hookTopActivity: onPause");
                 }
             });
         } catch (Throwable t) {
-            XposedBridge.log("[ERROR] " + t);
+            XposedBridge.log("[ERROR] sqz.wenku8.bg hookTopActivity: " + t);
         }
     }
 
@@ -88,7 +85,7 @@ public class HookLightMode {
                 }
             });
         } catch (Throwable t) {
-            XposedBridge.log("[ERROR] " + t);
+            XposedBridge.log("[ERROR] sqz.wenku8.bg markUserTriggeredByOnClick: " + t);
         }
     }
 
@@ -149,14 +146,14 @@ public class HookLightMode {
                                     MainHook.log(true, "PowerSave EXIT");
                                 }
                             } catch (Throwable t) {
-                                XposedBridge.log("[ERROR] " + t);
+                                XposedBridge.log("[ERROR] sqz.wenku8.bg hookBettrySaver: " + t);
                             }
                         }
                     }, filter);
                 }
             });
         } catch (Throwable t) {
-            XposedBridge.log("[ERROR] " + t);
+            XposedBridge.log("[ERROR] sqz.wenku8.bg hookBettrySaver: " + t);
         }
     }
 
@@ -165,6 +162,7 @@ public class HookLightMode {
      */
     private void hookDarkMode(final XC_LoadPackage.LoadPackageParam lpp) {
         try {
+            // Register hook: get dark mode state
             XposedHelpers.findAndHookMethod(Application.class, "onCreate", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
@@ -181,49 +179,37 @@ public class HookLightMode {
                     inDarkMode = new AtomicBoolean(false);
                     inDarkMode.set(isDarkInit);
                     MainHook.log(false, "Initial dark mode = " + isDarkInit);
-
-                    // Register receiver: dark mode change
-                    IntentFilter filter = new IntentFilter();
-                    try {
-                        filter.addAction("android.app.action.UI_MODE_CHANGED");
-                        filter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
-                    } catch (Throwable ignore) {
-                        filter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
+                }
+            });
+            // Register hook: listen onResume for process dark mode change
+            XposedHelpers.findAndHookMethod(Activity.class, "onResume", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) {
+                    Activity activity = (Activity) param.thisObject;
+                    Context context = activity.getApplicationContext();
+                    int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+                    boolean isDarkMode = nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
+                    if (inDarkMode == null) { // if failed to set in listener above
+                        inDarkMode = new AtomicBoolean(isDarkMode);
                     }
-                    ContextCompat.registerReceiver(ctx, new BroadcastReceiver() {
-                        @Override
-                        public void onReceive(Context context, Intent intent) {
-                            int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-                            boolean isDarkReceive, isDarkMode = nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
-                            if (reverseDarkMode.get()) {
-                                isDarkReceive = !isDarkMode;
-                            } else {
-                                isDarkReceive = isDarkMode;
-                            }
-                            try {
-                                boolean prev = inDarkMode.getAndSet(isDarkReceive);
-                                if (isDarkReceive && !prev) {
-                                    if (!isModeChanged.get()) {
-                                        triggerBusinessDirect(lpp);
-                                        isModeChanged.set(true);
-                                    }
-                                    MainHook.log(true, "Dark mode ENTER");
-                                } else if (!isDarkReceive && prev) {
-                                    if (isModeChanged.get()) {
-                                        triggerBusinessDirect(lpp);
-                                        isModeChanged.set(false);
-                                    }
-                                    MainHook.log(true, "Dark mode EXIT");
-                                }
-                            } catch (Throwable t) {
-                                XposedBridge.log("[ERROR] " + t);
-                            }
+                    boolean prev = inDarkMode.getAndSet(isDarkMode);
+                    if (isDarkMode && !prev) {
+                        if (!isModeChanged.get()) {
+                            triggerBusinessDirect(lpp);
+                            isModeChanged.set(true);
                         }
-                    }, filter, ContextCompat.RECEIVER_EXPORTED);
+                        MainHook.log(true, "Dark mode ENTER");
+                    } else if (!isDarkMode && prev) {
+                        if (isModeChanged.get()) {
+                            triggerBusinessDirect(lpp);
+                            isModeChanged.set(false);
+                        }
+                        MainHook.log(true, "Dark mode EXIT");
+                    }
                 }
             });
         } catch (Throwable t) {
-            XposedBridge.log("[ERROR] " + t);
+            XposedBridge.log("[ERROR] sqz.wenku8.bg hookDarkMode: " + t);
         }
     }
 
@@ -274,7 +260,7 @@ public class HookLightMode {
             }
 
         } catch (Throwable t) {
-            XposedBridge.log("[ERROR] " + t);
+            XposedBridge.log("[ERROR] sqz.wenku8.bg triggerBusinessDirect: " + t);
         } finally {
             isProgrammatic.set(false);
         }
@@ -284,7 +270,7 @@ public class HookLightMode {
         try {
             return XposedHelpers.getStaticObjectField(c, name);
         } catch (Throwable t) {
-            XposedBridge.log(" [WARN] " + "getStaticField fail: " + name + " -> " + t);
+            XposedBridge.log("[ WARN] " + "getStaticField fail: " + name + " -> " + t);
             return null;
         }
     }
@@ -293,7 +279,7 @@ public class HookLightMode {
         try {
             return XposedHelpers.getIntField(obj, name);
         } catch (Throwable t) {
-            XposedBridge.log(" [WARN] " + "getIntField fail: " + name + " -> " + t);
+            XposedBridge.log("[ WARN] " + "getIntField fail: " + name + " -> " + t);
             return 0;
         }
     }
@@ -313,7 +299,7 @@ public class HookLightMode {
                 hookDarkMode(lpParam);
             }
         } catch (Throwable t) {
-            XposedBridge.log("[ERROR] " + t);
+            XposedBridge.log("[ERROR] sqz.wenku8.bg mainHook: " + t);
         }
     }
 }
