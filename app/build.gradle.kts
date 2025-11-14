@@ -10,8 +10,8 @@ android {
         applicationId = "sqz.wenku8.bg"
         minSdk = 27
         targetSdk = 36
-        versionCode = 12
-        versionName = "1.2"
+        versionCode = 121
+        versionName = "1.2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         android.buildFeatures.buildConfig = true

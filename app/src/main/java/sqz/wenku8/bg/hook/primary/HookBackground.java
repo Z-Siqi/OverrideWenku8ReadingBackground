@@ -1,4 +1,4 @@
-package sqz.wenku8.bg;
+package sqz.wenku8.bg.hook.primary;
 
 import android.annotation.SuppressLint;
 import android.content.res.Resources;
@@ -13,6 +13,8 @@ import java.util.Objects;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import sqz.wenku8.bg.MainHook;
+import sqz.wenku8.bg.R;
 
 public class HookBackground {
     public static final String OVERRIDE_DRAWABLE = "reader_bg_yellow_edge";
