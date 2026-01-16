@@ -14,7 +14,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sqz.wenku8.bg.hook.primary.HookBackground;
-import sqz.wenku8.bg.hook.view.ads.HookAdsLoadFailedActivity;
+import sqz.wenku8.bg.hook.view.license.HookLicenseActivity;
 import sqz.wenku8.bg.hook.view.mode.HookLightMode;
 
 public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
@@ -90,7 +90,7 @@ public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         // hook light mode
         new HookLightMode().mainHook(lpParam);
         // hook start ads failed to load activity (com.pairip.licensecheck.LicenseActivity)
-        new HookAdsLoadFailedActivity().mainHook(lpParam);
+        new HookLicenseActivity().mainHook(lpParam);
     }
 
     @Override

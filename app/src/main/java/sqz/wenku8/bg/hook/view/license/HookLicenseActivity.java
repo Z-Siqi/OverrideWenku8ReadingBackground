@@ -1,4 +1,4 @@
-package sqz.wenku8.bg.hook.view.ads;
+package sqz.wenku8.bg.hook.view.license;
 
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
@@ -9,11 +9,9 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-public class HookAdsLoadFailedActivity {
+public class HookLicenseActivity {
 
-    // Note: this will not disable any ads to display, just fix the ads load failed.
-    // This issue should not happend in web ads can display correctly, but target app failed.
-    // THAT IS WHY TESTING IS IMPORTANT!
+    // Note: this will fix the LicenseActivity may showing and break user experence
     private void interceptActivityStart(XC_LoadPackage.LoadPackageParam lpParam) {
         findAndHookMethod(
                 "android.app.ContextImpl",
@@ -41,7 +39,7 @@ public class HookAdsLoadFailedActivity {
         try {
             this.interceptActivityStart(lpParam);
         } catch (Exception e) {
-            XposedBridge.log("[ERROR] HookAdsLoadFailedActivity.java Failed: " + e);
+            XposedBridge.log("[ERROR] HookLicenseActivity.java Failed: " + e);
         }
     }
 }
