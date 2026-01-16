@@ -1,5 +1,7 @@
 package sqz.wenku8.bg;
 
+import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
+
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -10,9 +12,9 @@ import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import sqz.wenku8.bg.hook.primary.HookBackground;
+import sqz.wenku8.bg.hook.view.ads.HookAdsLoadFailedActivity;
 import sqz.wenku8.bg.hook.view.mode.HookLightMode;
 
 public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
@@ -53,7 +55,7 @@ public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
     }
 
     private void setVersionCode(XC_LoadPackage.LoadPackageParam lpParam, StartHook startHook) {
-        XposedHelpers.findAndHookMethod(Application.class, "attach", Context.class, new XC_MethodHook() {
+        findAndHookMethod(Application.class, "attach", Context.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(XC_MethodHook.MethodHookParam param) {
                 Context ctx = (Context) param.args[0];
@@ -87,6 +89,8 @@ public class MainHook implements IXposedHookLoadPackage, IXposedHookZygoteInit {
         new HookBackground().mainHook(lpParam);
         // hook light mode
         new HookLightMode().mainHook(lpParam);
+        // hook start ads failed to load activity (com.pairip.licensecheck.LicenseActivity)
+        new HookAdsLoadFailedActivity().mainHook(lpParam);
     }
 
     @Override
