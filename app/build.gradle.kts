@@ -1,8 +1,10 @@
+import com.android.build.api.dsl.ApplicationExtension
+
 plugins {
     alias(libs.plugins.android.application)
 }
 
-android {
+extensions.configure<ApplicationExtension>("android") {
     namespace = "sqz.wenku8.bg"
     compileSdk = 36
 
@@ -10,11 +12,11 @@ android {
         applicationId = "sqz.wenku8.bg"
         minSdk = 27
         targetSdk = 36
-        versionCode = 130
-        versionName = "1.3.0"
+        versionCode = 131
+        versionName = "1.3.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        android.buildFeatures.buildConfig = true
+        buildFeatures.buildConfig = true
     }
 
     buildTypes {

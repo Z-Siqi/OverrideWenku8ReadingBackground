@@ -13,7 +13,7 @@ import sqz.wenku8.bg.MainHook;
 
 public class ToggleModeHandler {
     public static final List<String> THEME_CLASS_CANDIDATES = Arrays.asList(
-            "x2.c", "y2.c", "b7.d", "ta.c"
+            "x2.c", "y2.c", "b7.d", "ta.c", "db.d"
     );
 
     private final ActivityHandler activityHandler;
